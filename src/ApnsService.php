@@ -140,7 +140,7 @@ class ApnsService
                     foreach ($error ['ERRORS'] as $e) {
                         if (isset($e['statusCode'])) {
                             if (8 == $e ['statusCode']) {
-                                $this->triggerDeviceError($devices, $error['MESSAGE']->getRecipient());
+                                $this->triggerDeviceError($error);
                             } elseif (0 != $e ['statusCode']) {
                                 $foundError = true;
                             }
@@ -165,16 +165,11 @@ class ApnsService
 
 
     /**
-     * @param string $token
+     * @param array $error
      */
-    protected function triggerDeviceError(Collection $devices, $token)
+    protected function triggerDeviceError($error)
     {
-        $device = $devices->first(function ($device) use ($token) {
-            return $device->token == $token;
-        });
-
-        if ( ! empty($device)) {
-            $this->errors[] = $device;
-        }
+        $error = $error['ERRORS'][0];
+        $this->errors[] = $error['statusCode'] . ": ". $error['statusMessage'];
     }
 }
